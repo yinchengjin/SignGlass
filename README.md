@@ -1,3 +1,3 @@
 # SignGlass
-- Hardware introduces the implementation of hardware for data collection. Please refer to "Respberry Pi" for more information.
-- algorithm introduces the implementation of algorithm for ASL recognition and translation. 
+- hardware folder introduces the implementation of hardware for data collection. Please refer to "Raspberry pi instruction.docx" for more information.
+- algorithm folder introduces the implementation of the algorithm for ASL recognition and translation. 
