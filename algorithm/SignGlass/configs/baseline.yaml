@@ -1,0 +1,35 @@
+phase: train
+dataset: SignGlass
+work_dir: ./work_dir/signglass_res18/
+random_seed: 0
+device: 0,1
+log_interval: 10
+eval_interval: 1
+save_interval: 5
+evaluate_tool: python
+
+batch_size: 8
+test_batch_size: 8
+num_worker: 4
+
+gloss_vocab: ./vocab/gloss_vocab.json
+train_list: ./data/train.txt
+val_list: ./data/val.txt
+test_list: ./data/test.txt
+
+model: models.SignGlass
+model_args: {} 
+
+loss_weights:
+  ctc: 1.0
+  seq2seq: 1.0
+  syntax: 1.0
+
+optimizer_args:
+  optimizer: Adam
+  base_lr: 0.0001
+  step: [10, 20]
+  start_epoch: 0
+  weight_decay: 0.0001
+  nesterov: False
+  learning_ratio: 1.0

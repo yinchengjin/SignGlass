@@ -1,0 +1,96 @@
+# SignGlass: Egocentric ASL Recognition and Translation via Smart Glasses
+
+This repository implements the complete pipeline of **SignGlass**, a wearable camera–based ASL translation system designed to simultaneously capture and process both **manual** and **non-manual markers** from first-person video. The system supports real-time, user-independent recognition and translation of ASL into English, and has been validated through a multi-participant study.
+
+This implementation corresponds to our UIST 2025 paper:
+
+> **SignGlass: First-Person View Comprehensive and Generalizable ASL Translation Using Wearable Glass**
+> *To appear in Proceedings of the ACM Symposium on User Interface Software and Technology (UIST 2025)*
+
+---
+
+## Overview
+
+SignGlass addresses the critical need for accurate, portable, and user-generalizable ASL recognition. Existing systems often fail to capture the full linguistic richness of ASL—especially facial expressions—and rely on socially intrusive or multi-device setups. In contrast, SignGlass uses a **tri-camera wearable glasses platform** and introduces algorithmic innovations across three core modules:
+
+* **EgoCorrNet**: Robust egocentric gesture recognition with jitter-aware, dual-modality fusion (RGB optical flow + MediaPipe landmarks).
+* **EgoFaceNet**: Stereo facial encoder with FiLM-based gloss conditioning for sentence-level non-manual classification.
+* **Gloss2Eng Transformer**: Lightweight Transformer decoder trained on gloss-English aligned corpora for grammar-aware translation.
+
+---
+
+## Core Modules
+
+### 1. ASL-to-Gloss Recognition
+
+* **Manual Markers**:
+
+  * Input: Egocentric RGB video (optical flow) + 21-point MediaPipe landmarks
+  * Architecture: CorrNet+ backbone with jitter-aware cross-modal attention
+  * Output: Per-frame gloss token prediction (via CTC loss)
+
+* **Non-Manual Markers**:
+
+  * Input: Dual 224×224 facial views (left/right side cameras)
+  * Architecture: Parallel TimeSFormer encoders, MLP fusion, FiLM conditioning with gloss tokens
+  * Output: 4-class multi-label classification for WH-Q / YN / NEG / TOP
+
+### 2. Gloss-to-English Translation
+
+* Sequence-level Transformer decoder trained on:
+
+  * ASLLRP corpus + aligned subset of How2Sign
+  * Byte-Pair Encoding (BPE) gloss tokenizer
+  * Supervised with label smoothing and beam search (beam size=4)
+
+* Supports grammatical reordering, question negation, and gloss disambiguation.
+
+### 3. Data Augmentation Strategy
+
+* Multi-stage frame-level augmentation combining:
+
+  * Spatial distortions (scaling, rotation, affine)
+  * Color jittering and perspective warping
+  * Temporal sampling jitter
+* Used to simulate signer variability and occlusion, enhancing generalization to unseen users.
+
+---
+
+## Implementation Details
+
+* Framework: PyTorch 1.13+
+* Training:
+
+  * Optimizer: Adam
+  * LR: 1e-4 with cosine scheduler
+  * Batch size: 2 (video-heavy pipeline)
+  * Evaluation: BLEU-1 (translation), WER (recognition)
+* Data Format:
+
+  * RGB video: multi-view cropped clips
+  * Ground truth: gloss sequences and English references
+* Preprocessing: Hand landmarks and optical flow extracted offline for training
+
+---
+
+### Real-Time Performance
+
+* Model inference runs on mobile devices (e.g., Samsung S20, OnePlus 9 Pro) using PyTorch Mobile.
+* No need for additional wearables or environmental setup.
+
+---
+
+## Citation
+
+If you use this system or codebase in your research, please cite:
+
+```bibtex
+@inproceedings{signglass2025,
+  title={SignGlass: First-Person View Comprehensive and Generalizable ASL Translation Using Wearable Glass},
+  author={Anonymous Authors},
+  booktitle={Proceedings of the ACM Symposium on User Interface Software and Technology (UIST)},
+  year={2025}
+}
+```
+
+---
